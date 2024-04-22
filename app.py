@@ -1,22 +1,40 @@
-import streamlit as st
-from transformers import pipeline
+import requests
+import json
+import gradio as gr
 
-# Load your model from Hugging Face
-model = pipeline("text-generation", model="curiouscurrent/omnicode")
+url="http://localhost:11434/api/generate"
+
+headers={
+
+    'Content-Type':'application/json'
+}
+
+history=[]
 
 def generate_response(prompt):
-    # Generate response using the loaded model
-    response = model(prompt, max_length=50, do_sample=False)[0]['generated_text']
-    return response
+    history.append(prompt)
+    final_prompt="\n".join(history)
 
-def main():
-    st.title("Code Generation")
+    data={
+        "model":"codeguru",
+        "prompt":final_prompt,
+        "stream":False
+    }
 
-    prompt = st.text_area("Enter your Prompt", height=150)
+    response=requests.post(url,headers=headers,data=json.dumps(data))
 
-    if st.button("Generate"):
-        response = generate_response(prompt)
-        st.text_area("Generated Code", value=response, height=500)
+    if response.status_code==200:
+        response=response.text
+        data=json.loads(response)
+        actual_response=data['response']
+        return actual_response
+    else:
+        print("error:",response.text)
 
-if __name__ == "__main__":
-    main()
+
+interface=gr.Interface(
+    fn=generate_response,
+    inputs=gr.Textbox(lines=4,placeholder="Enter your Prompt"),
+    outputs="text"
+)
+interface.launch(share=True)
