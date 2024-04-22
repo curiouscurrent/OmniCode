@@ -1,21 +1,13 @@
 import streamlit as st
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import pipeline
 
-# Load the model and tokenizer
-model_name = "curiouscurrent/omnicode"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
+# Load your model from Hugging Face
+model = pipeline("text-generation", model="curiouscurrent/omnicode")
 
 def generate_response(prompt):
-    # Tokenize the prompt
-    inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
-
     # Generate response using the loaded model
-    output = model.generate(**inputs, max_length=150, num_return_sequences=1)
-
-    # Decode the generated response
-    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
-    return generated_text
+    response = model(prompt, max_length=50, do_sample=False)[0]['generated_text']
+    return response
 
 def main():
     st.title("Code Generation")
