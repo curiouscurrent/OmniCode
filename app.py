@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import json
 
-url = "https://huggingface.co/curiouscurrent/omnicode"
+url = "http://localhost:11434/api/generate"
 
 headers = {
     'Content-Type': 'application/json'
