@@ -1,34 +1,21 @@
-import requests
-import json
 import streamlit as st
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
-url = "http://localhost:11434/api/generate"
-
-headers = {
-    'Content-Type': 'application/json'
-}
-
-history = []
+# Load the model and tokenizer
+model_name = "curiouscurrent/omnicode"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
 
 def generate_response(prompt):
-    history.append(prompt)
-    final_prompt = "\n".join(history)
+    # Tokenize the prompt
+    inputs = tokenizer(prompt, return_tensors="pt", max_length=512, truncation=True)
 
-    data = {
-        "model": "codeguru",
-        "prompt": final_prompt,
-        "stream": False
-    }
+    # Generate response using the loaded model
+    output = model.generate(**inputs, max_length=150, num_return_sequences=1)
 
-    response = requests.post(url, headers=headers, data=json.dumps(data))
-
-    if response.status_code == 200:
-        response = response.text
-        data = json.loads(response)
-        actual_response = data['response']
-        return actual_response
-    else:
-        st.error("Error: " + response.text)
+    # Decode the generated response
+    generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+    return generated_text
 
 def main():
     st.title("Code Generation")
