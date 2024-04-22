@@ -16,7 +16,7 @@ def generate_response(prompt):
     final_prompt="\n".join(history)
 
     data={
-        "model":"codeguru",
+        "model":"omnicode",
         "prompt":final_prompt,
         "stream":False
     }
