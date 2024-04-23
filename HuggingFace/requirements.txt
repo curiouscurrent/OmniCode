@@ -1,0 +1,8 @@
+langchain
+gradio
+transformers
+accelerate
+tensorflow>=2.0
+torch
+flax
+flask
